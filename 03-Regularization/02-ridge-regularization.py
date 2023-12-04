@@ -1,4 +1,4 @@
-## L2 regularization on iris dataset
+# L2 regularization on iris dataset
 
 import torch
 import torch.nn as nn
@@ -12,7 +12,7 @@ from torch.utils.data import TensorDataset, DataLoader
 def create_data():
     iris = sns.load_dataset('iris')
 
-    data = torch.tensor(iris[iris.columns[0:4]].values ).float()
+    data = torch.tensor(iris[iris.columns[0:4]].values).float()
     labels = torch.zeros(len(data), dtype=torch.long)
     labels[iris.species == 'vesicolor'] = 1
     labels[iris.species == 'virginica'] = 2
@@ -58,20 +58,20 @@ def create_and_train_model(l2lambda, trainprop=0.8, trainEpoches=1000):
             loss.backward()
             optimizer.step()
 
-            batchAccuray.append( 100 * torch.mean( (torch.argmax( yhat, dim=1 ) == batch_label).float() ) )
+            batchAccuray.append(100 * torch.mean((torch.argmax(yhat, dim=1) == batch_label).float()))
 
-        trainAccuracies.append( np.mean(batchAccuray) )
-        
-        X, y = next(iter(test_dataset)) # extract the data and label from test_dataset
+        trainAccuracies.append(np.mean(batchAccuray))
+
+        X, y = next(iter(test_dataset))  # extract the data and label from test_dataset
         predictions = model(X)
-        testAccuracies.append( 100 * torch.mean( (torch.argmax( predictions, dim=1 ) == y).float()) )
+        testAccuracies.append(100 * torch.mean((torch.argmax(predictions, dim=1) == y).float()))
 
     return trainAccuracies, testAccuracies
 
 
 # 1D smooting filter
-def smooth(x,k):
-  return np.convolve(x,np.ones(k)/k,mode='same')
+def smooth(x, k):
+    return np.convolve(x, np.ones(k) / k, mode='same')
 
 
 if __name__ == '__main__':
@@ -79,17 +79,16 @@ if __name__ == '__main__':
     trainProp = 0.8
 
     l2lambdas = np.linspace(0, 0.1, 10)
-    accuracyResultsTrain = np.zeros( (trainEpoches, len(l2lambdas)) )
-    accuracyResultsTest  = np.zeros( (trainEpoches, len(l2lambdas)) )
+    accuracyResultsTrain = np.zeros((trainEpoches, len(l2lambdas)))
+    accuracyResultsTest = np.zeros((trainEpoches, len(l2lambdas)))
 
     for li in range(len(l2lambdas)):
-
         trainAccuracies, testAccuracies = create_and_train_model(l2lambdas[li], trainProp, trainEpoches)
 
-        accuracyResultsTrain[:, li] = smooth( trainAccuracies, 10 )
-        accuracyResultsTest[:, li]  = smooth( testAccuracies, 10 )
+        accuracyResultsTrain[:, li] = smooth(trainAccuracies, 10)
+        accuracyResultsTest[:, li] = smooth(testAccuracies, 10)
 
-    fig,ax = plt.subplots(1, 2, figsize=(17,7))
+    fig, ax = plt.subplots(1, 2, figsize=(17, 7))
 
     ax[0].plot(accuracyResultsTrain)
     ax[0].set_title('Train accuracy')
@@ -97,15 +96,14 @@ if __name__ == '__main__':
     ax[1].set_title('Test accuracy')
 
     # make the legend easier to read
-    leglabels = [np.round(i,2) for i in l2lambdas]
+    leglabels = [np.round(i, 2) for i in l2lambdas]
 
     # common features
     for i in range(2):
         ax[i].legend(leglabels)
         ax[i].set_xlabel('Epoch')
         ax[i].set_ylabel('Accuracy (%)')
-        ax[i].set_ylim([50,101])
+        ax[i].set_ylim([50, 101])
         ax[i].grid()
 
     plt.show()
-

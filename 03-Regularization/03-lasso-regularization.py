@@ -1,4 +1,4 @@
-## L1 regularization on iris dataset
+# L1 regularization on iris dataset
 
 import torch
 import torch.nn as nn
